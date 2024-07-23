@@ -1,0 +1,59 @@
+services:
+  symfony-install:
+    container_name: symfony_${PROJECT_NAME}_install
+    build:
+      context: ./
+      dockerfile: docker/configs/php/Dockerfile-installer
+      args:
+        WORKDIR: ${WORKDIR}
+    environment:
+      WORKDIR: ${WORKDIR}
+    volumes:
+      - ./:${WORKDIR}
+  php:
+    container_name: php_${PROJECT_NAME}
+    build:
+      context: ./
+      dockerfile: docker/configs/php/Dockerfile
+      args:
+        WORKDIR: ${WORKDIR}
+    environment:
+      WORKDIR: ${WORKDIR}
+      XDEBUG_CONFIG: remote_host={{YOUR_IP_ADDRESS}}
+      PHP_IDE_CONFIG: serverName=docker
+    volumes:
+      - ./:${WORKDIR}
+    links:
+      - db_mysql
+
+  db_mysql:
+    image: mysql:latest
+    container_name: mysql_${PROJECT_NAME}
+    ports:
+      - ${MYSQL_PORT}:3306
+    environment:
+      WORKDIR: ${WORKDIR}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE:  ${MYSQL_DATABASE:-project_db}
+      MYSQL_USER:  ${MYSQL_USER:-dbuser}
+      MYSQL_PASSWORD:  ${MYSQL_PASSWORD:-pass4dbuser}
+    volumes:
+      - ./docker/databases/mysql_dump:/docker-entrypoint-initdb.d
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_${PROJECT_NAME}
+    environment:
+      WORKDIR: ${WORKDIR}
+      HTTP_PORT: ${HTTP_PORT}
+      HTTPS_PORT: ${HTTPS_PORT}
+    ports:
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
+    volumes:
+      - ./:${WORKDIR}
+      - ./docker/configs/nginx:/etc/nginx/conf.d
+      - ./docker/configs/nginx/project.conf.template:/etc/nginx/templates/project.conf.template
+      - ./logs/nginx:/var/log/nginx
+    links:
+      - php

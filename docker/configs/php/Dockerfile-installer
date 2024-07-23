@@ -1,0 +1,15 @@
+FROM php:8.3-fpm
+WORKDIR ${WORKDIR}
+
+RUN apt-get -y update && apt-get -y install git unzip rsync
+
+RUN git config --global user.email "m3rl1n1k@gmail.com"
+RUN git config --global user.name "M3rl1n1k"
+
+ENV TERM xterm-256color
+
+RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
+ENTRYPOINT /bin/bash ${WORKDIR}/docker/configs/php/symfony_install.sh
+
+CMD php-fpm
+EXPOSE 9000

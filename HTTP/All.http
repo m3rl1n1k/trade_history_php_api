@@ -1,0 +1,151 @@
+@base_url = http://localhost:2280/api
+@auth_token = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MjE2NzA0MDAsImV4cCI6MjA4MTY3MDQwMCwianRpIjoiOGU0MzhiN2M2ZmNjNDViNWQwNTAzMzgzOTlmOTEzM2IiLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwidXNlcm5hbWUiOiJzZXJxZHJhZ29AZ21haWwuY29uIn0.ctGzwTkyiVPG3_-lc2iVhMRg_IrNSF2-c13bSdMLtHzIMYvBViPJIDtdSkwc3efuNSPa9GvIUnoPz1nVDiJeH8OYtTlfdeCMZiCXogNhE3ePdOOGWpYOuvZ58Ws9j4iqbqK7JqEpVBML7nn7D3oX39BOnBpb6OJ-GYP0UgFjDz2NffMcc-MVlxHpA6VMdf3HfPxrSdYaELl6UY8PPMi3uRICuqBduoZ-mrbUSJNK7yT-dkleCI1qlf5RR4uZwfuSW-cB22QGn56il5GYQfvmqrfJh4pcJCADnmgzZ2U0ASZpHHrLaGuegEHOsECTXMdmUSGUKMAQbgomNcseHZYJhA
+
+### Home
+GET http://localhost:2280/
+
+
+### Login
+POST {{base_url}}/login_check
+Content-Type: application/json
+
+{
+  "username": "serqdrago@gmail.con",
+  "password": "password"
+}
+
+
+
+### Register
+POST {{base_url}}/registration
+Content-Type: application/json
+
+{
+  "email": "serqdrago@gmail.com",
+  "password": "password"
+}
+
+
+### Collection
+GET {{base_url}}/v1/category
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### Record
+GET {{base_url}}/v1/category/2
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### New
+POST {{base_url}}/v1/category/new
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "amount": 123.12,
+  "type": 1,
+  "description": "with description and category",
+  "created_at": "2024-07-20 15:35:18",
+  "wallet": {
+    "wallet": "/api/wallet/1"
+  },
+  "user": {
+    "user": "/api/user/2"
+  },
+  "category": {
+    "category": "/api/category/2"
+  }
+}
+
+### Collection
+GET {{base_url}}/v1/main/category
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### Record
+GET {{base_url}}/v1/main/category/1
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### New
+POST {{base_url}}/v1/main/category/new
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "amount": 123.12,
+  "type": 1,
+  "description": "with description and category",
+  "created_at": "2024-07-20 15:35:18",
+  "wallet": {
+    "wallet": "/api/wallet/1"
+  },
+  "user": {
+    "user": "/api/user/2"
+  },
+  "category": {
+    "category": "/api/category/2"
+  }
+}
+
+### Collection
+GET {{base_url}}/v1/transaction
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### Record
+GET {{base_url}}/v1/transaction/2
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### New
+POST {{base_url}}/v1/transaction/new
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "amount": 3.50,
+  "type": 2,
+  "description": "test transaction after rewrite code ",
+  "created_at": "2024-07-23 18:35:18",
+  "wallet": {
+    "url": "/api/wallet/1"
+  },
+  "category": {
+    "url": "/api/category/4"
+  }
+}
+
+
+### Edit
+PUT {{base_url}}/v1/transaction/edit/26
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "amount": 100,
+  "type": 1,
+  "description": "edited -> test transaction after rewrite code",
+  "created_at": "2024-07-23 18:36:18",
+  "wallet": {
+    "url": "/api/wallet/1"
+  },
+  "category": {
+    "url": "/api/category/4"
+  }
+}
+
+### User
+GET {{base_url}}/v1/user/1
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### Collection
+GET {{base_url}}/v1/wallet
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### Record
+GET {{base_url}}/v1/wallet/1
+Accept: application/json
+Authorization: Bearer {{auth_token}}
