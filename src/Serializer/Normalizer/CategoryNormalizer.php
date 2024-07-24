@@ -17,6 +17,11 @@ class CategoryNormalizer implements NormalizerInterface
     {
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [Category::class => true];
+    }
+
     public function normalize($object, ?string $format = null, array $context = []): array
     {
         $data = $this->normalizer->normalize($object, $format, $context);
@@ -29,10 +34,5 @@ class CategoryNormalizer implements NormalizerInterface
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Category;
-    }
-
-    public function getSupportedTypes(?string $format): array
-    {
-        return [Category::class => true];
     }
 }

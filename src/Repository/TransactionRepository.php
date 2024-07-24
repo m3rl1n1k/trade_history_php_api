@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Transaction;
 use App\Trait\EntityRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -43,4 +44,14 @@ class TransactionRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findByGetQuery(int $userId): Query
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.user = :user')
+            ->orderBy('t.created_at', 'DESC')
+            ->setParameter('user', $userId)
+            ->getQuery();
+
+    }
 }

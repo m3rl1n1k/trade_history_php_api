@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Transaction;
+use App\Paginator\PaginationFactory;
 use App\Repository\CategoryRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
@@ -31,9 +32,11 @@ class TransactionController extends BaseController
     }
 
     #[Route('/', name: 'app_transactions', methods: ['GET'])]
-    public function index(TransactionRepository $transactionRepository): JsonResponse
+    public function index(Request $request, TransactionRepository $transactionRepository, PaginationFactory $paginationFactory): JsonResponse
     {
-        $transactions = $transactionRepository->findBy(['user' => $this->getUser()->getId()]);
+//        $transactions = $transactionRepository->findBy(['user' => $this->getUser()->getId()]);
+        $transactions = $transactionRepository->findByGetQuery($this->getUser()->getId());
+        $transactions = $paginationFactory->createPagination($transactions, $request);
         return $this->jsonResponse($transactions, context: [
             AbstractNormalizer::GROUPS => ['groups' => 'transaction:read']
         ]);

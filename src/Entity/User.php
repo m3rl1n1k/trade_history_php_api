@@ -49,6 +49,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: MainCategory::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $mainCategories;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Groups(['user:read'])]
+    private ?Setting $setting = null;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
@@ -73,13 +77,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * A visual identifier that represents this user.
-     *
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
      * @see UserInterface
      */
-    public function getUserIdentifier(): string
+    public function eraseCredentials(): void
     {
-        return (string)$this->email;
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
     /**
@@ -107,27 +125,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
+     * A visual identifier that represents this user.
+     *
      * @see UserInterface
      */
-    public function eraseCredentials(): void
+    public function getUserIdentifier(): string
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        return (string)$this->email;
     }
 
     /**
@@ -186,6 +190,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $mainCategory->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSetting(): ?Setting
+    {
+        return $this->setting;
+    }
+
+    public function setSetting(?Setting $setting): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($setting === null && $this->setting !== null) {
+            $this->setting->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($setting !== null && $setting->getUser() !== $this) {
+            $setting->setUser($this);
+        }
+
+        $this->setting = $setting;
 
         return $this;
     }

@@ -17,6 +17,11 @@ class WalletNormalizer implements NormalizerInterface
     {
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [Wallet::class => true];
+    }
+
     public function normalize($object, ?string $format = null, array $context = []): array|string
     {
         $data = $this->normalizer->normalize($object, $format, $context);
@@ -29,10 +34,5 @@ class WalletNormalizer implements NormalizerInterface
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Wallet;
-    }
-
-    public function getSupportedTypes(?string $format): array
-    {
-        return [Wallet::class => true];
     }
 }

@@ -25,7 +25,7 @@ class WalletController extends BaseController
     {
 
         $wallet = $walletRepository->findOneBy(['id' => $id]);
-        $this->permission($wallet);
+        $this->checkPermission($wallet);
         return $this->jsonResponse($wallet);
     }
 

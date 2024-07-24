@@ -17,6 +17,11 @@ readonly class UserNormalizer implements NormalizerInterface
     {
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [User::class => true];
+    }
+
     public function normalize($object, ?string $format = null, array $context = []): array|string
     {
         $data = $this->normalizer->normalize($object, $format, $context);
@@ -29,10 +34,5 @@ readonly class UserNormalizer implements NormalizerInterface
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof User;
-    }
-
-    public function getSupportedTypes(?string $format): array
-    {
-        return [User::class => true];
     }
 }

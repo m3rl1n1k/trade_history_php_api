@@ -18,22 +18,22 @@ class BaseController extends AbstractController
         ]));
     }
 
-    public function permission(object $class): ?JsonResponse
-    {
-        if ($this->getUser()->getUserIdentifier() === null) {
-            $this->redirectToRoute('app_index');
-        }
-        if ($this->getUser()->getId() !== $class->getUser()->getId()) {
-            return $this->json("You don't have access to this resource.", Response::HTTP_FORBIDDEN);
-        }
-        return null;
-    }
-
     protected function checkPermission(object $class = null): ?JsonResponse
     {
         $permission = $this->permission($class);
         if ($permission !== null) {
             return $permission;
+        }
+        return null;
+    }
+
+    private function permission(?object $class): ?JsonResponse
+    {
+        if ($this->getUser()->getUserIdentifier() === null) {
+            $this->redirectToRoute('app_index');
+        }
+        if ($class !== null && $this->getUser()->getId() !== $class->getUser()->getId()) {
+            return $this->json("You don't have access to this resource.", Response::HTTP_FORBIDDEN);
         }
         return null;
     }

@@ -17,6 +17,11 @@ class TransactionNormalizer implements NormalizerInterface
     {
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        return [Transaction::class => true];
+    }
+
     public function normalize($object, ?string $format = null, array $context = []): array
     {
         $data = $this->normalizer->normalize($object, $format, $context);
@@ -31,9 +36,4 @@ class TransactionNormalizer implements NormalizerInterface
         return $data instanceof Transaction;
     }
 
-    public function getSupportedTypes(?string $format): array
-    {
-        return [Transaction::class => true];
-    }
-    
 }
