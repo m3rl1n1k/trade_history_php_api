@@ -40,11 +40,15 @@ class Setting
 
     public function getSetting(): null|string|stdClass
     {
-        return json_decode($this->setting);
+//        return json_decode($this->setting);
+        return $this->setting;
     }
 
-    public function setSetting(?string $setting): static
+    public function setSetting(null|array|string $setting): static
     {
+        if (is_array($setting)) {
+            $setting = json_encode($setting, JSON_UNESCAPED_SLASHES);
+        }
         if ($setting === null) {
             $setting = $this->setDefaultSetting();
         }
@@ -71,6 +75,6 @@ class Setting
                 'transactions_per_page' => 20
             ],
         ];
-        return json_encode($setting, JSON_PRETTY_PRINT);
+        return json_encode($setting, JSON_UNESCAPED_SLASHES);
     }
 }

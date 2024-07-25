@@ -9,6 +9,21 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 class BaseController extends AbstractController
 {
+    protected function decodeJson(string $string)
+    {
+        return json_decode($string, true,);
+    }
+
+    protected function checkUserAccess(?object $class = null): ?JsonResponse
+    {
+        if ($this->getUser()->getUserIdentifier() === null) {
+            $this->redirectToRoute('app_index');
+        }
+        if ($class !== null && $this->getUser()->getId() !== $class->getUser()->getId()) {
+            return $this->jsonResponse(['message' => "You don't have access to this resource."], Response::HTTP_FORBIDDEN);
+        }
+        return null;
+    }
 
     protected function jsonResponse($data, $statusCode = Response::HTTP_OK, $headers = [], array $context = []): JsonResponse
     {
@@ -16,31 +31,6 @@ class BaseController extends AbstractController
             DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s',
             'json_encode_options' => JSON_UNESCAPED_SLASHES
         ]));
-    }
-
-    protected function checkPermission(object $class = null): ?JsonResponse
-    {
-        $permission = $this->permission($class);
-        if ($permission !== null) {
-            return $permission;
-        }
-        return null;
-    }
-
-    private function permission(?object $class): ?JsonResponse
-    {
-        if ($this->getUser()->getUserIdentifier() === null) {
-            $this->redirectToRoute('app_index');
-        }
-        if ($class !== null && $this->getUser()->getId() !== $class->getUser()->getId()) {
-            return $this->json("You don't have access to this resource.", Response::HTTP_FORBIDDEN);
-        }
-        return null;
-    }
-
-    protected function decodeJson(string $string)
-    {
-        return json_decode($string, true);
     }
 
 

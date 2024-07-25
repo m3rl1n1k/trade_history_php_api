@@ -41,9 +41,11 @@ class SettingRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function save(?array $setting, int $user_id): void
+    public function save(?array $setting, int $user_id = null): void
     {
-        $user_id = $this->userRepository->findOneBy(['id' => $user_id]);
+        if ($user_id !== null) {
+            $user_id = $this->userRepository->findOneBy(['id' => $user_id]);
+        }
 
         if ($setting === null) {
             $setting = new Setting();

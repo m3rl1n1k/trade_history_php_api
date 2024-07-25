@@ -16,7 +16,7 @@ class UserController extends BaseController
     public function index(UserRepository $userRepository): JsonResponse
     {
         $user = $userRepository->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
-        return $this->jsonResponse($user, context: [
+        return $this->jsonResponse(['user' => $user], context: [
             AbstractNormalizer::GROUPS => ['groups' => 'user:read'],
         ]);
     }

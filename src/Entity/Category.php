@@ -25,7 +25,7 @@ class Category
     private ?string $color = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?MainCategory $main = null;
 
     /**
@@ -33,6 +33,10 @@ class Category
      */
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'category')]
     private Collection $transactions;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function __construct()
     {
@@ -106,6 +110,18 @@ class Category
                 $transaction->setCategory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

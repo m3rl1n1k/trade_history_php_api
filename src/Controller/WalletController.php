@@ -15,9 +15,11 @@ class WalletController extends BaseController
     public function index(WalletRepository $walletRepository): JsonResponse
     {
 
-        $this->checkPermission();
+        if (null !== $permission = $this->checkUserAccess()) {
+            return $permission;
+        }
         $wallets = $walletRepository->findBy(['user' => $this->getUser()->getId()]);
-        return $this->jsonResponse($wallets);
+        return $this->jsonResponse(['wallets' => $wallets]);
     }
 
     #[Route('/{id}', name: 'app_wallet_show', methods: ['GET'])]
@@ -25,8 +27,11 @@ class WalletController extends BaseController
     {
 
         $wallet = $walletRepository->findOneBy(['id' => $id]);
-        $this->checkPermission($wallet);
-        return $this->jsonResponse($wallet);
+
+        if (null !== $permission = $this->checkUserAccess($wallet)) {
+            return $permission;
+        }
+        return $this->jsonResponse(['wallet' => $wallet]);
     }
 
 }
