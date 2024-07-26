@@ -76,7 +76,7 @@ class WalletController extends BaseController
         $entityManager->persist($wallet);
         $entityManager->flush();
 
-        return $this->jsonResponse(['message' => "Wallet is created"], Response::HTTP_CREATED);
+        return $this->jsonResponse(["message" => "Wallet is created"], Response::HTTP_CREATED);
     }
 
     #[Route('/edit/{id}', name: 'app_wallet_edit', methods: ['PATCH'])]
@@ -100,9 +100,9 @@ class WalletController extends BaseController
             $entityManager->persist($wallet);
             $entityManager->flush();
 
-            return $this->jsonResponse(['message' => "Wallet is updated"]);
+            return $this->jsonResponse(["message" => "Wallet is updated"]);
         }
-        return $this->jsonResponse(['message' => "Wallet is not found"], Response::HTTP_NOT_FOUND);
+        return $this->jsonResponse(["message" => "Wallet is not found"], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/delete/{id}', name: 'app_wallet_delete', methods: ['DELETE'])]
@@ -111,7 +111,7 @@ class WalletController extends BaseController
         $wallet = $categoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (is_null($wallet)) {
-            return $this->jsonResponse(['message' => "Wallet is not found"], Response::HTTP_NOT_FOUND);
+            return $this->jsonResponse(["message" => "Wallet is not found"], Response::HTTP_NOT_FOUND);
         }
 
         if (null !== $permission = $this->checkUserAccess($wallet)) {
@@ -125,9 +125,9 @@ class WalletController extends BaseController
             $entityManager->flush();
             $entityManager->commit();
         } catch (Exception $exception) {
-            return $this->jsonResponse(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+            return $this->jsonResponse(["message" => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        return $this->jsonResponse(['message' => "Wallet is deleted."]);
+        return $this->jsonResponse(["message" => "Wallet is deleted."]);
 
     }
 

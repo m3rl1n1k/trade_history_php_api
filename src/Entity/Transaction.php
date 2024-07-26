@@ -11,6 +11,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
+    const INCOME = 1;
+    const EXPENSE = 2;
+    const TRANSFER = 3;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -40,7 +43,7 @@ class Transaction
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['transaction:read', 'user:read'])]
+    #[Groups(['transaction:read'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
@@ -60,18 +63,6 @@ class Transaction
     public function setAmount(int|float $amount): static
     {
         $this->amount = is_int($amount) ? $amount : $amount * 100;
-
-        return $this;
-    }
-
-    public function getType(): ?int
-    {
-        return $this->type;
-    }
-
-    public function setType(int $type): static
-    {
-        $this->type = $type;
 
         return $this;
     }
@@ -142,11 +133,56 @@ class Transaction
     public function setDataForTransaction(Transaction $transaction, array $data): Transaction
     {
         $transaction->setAmount($data['amount']);
-        $transaction->setType($data['type']);
+        $transaction->setType();
         $transaction->setDescription($data['description']);
         $transaction->setCreatedAt(new DateTimeImmutable($data['created_at']));
         $transaction->setCategory($data['category']);
         $transaction->setWallet($data['wallet']);
         return $transaction;
+    }
+
+    public function setIncome(): Transaction
+    {
+        $this->type = self::INCOME;
+        return $this;
+    }
+
+    public function setExpense(): Transaction
+    {
+        $this->type = self::EXPENSE;
+        return $this;
+    }
+
+    public function setTransfer(): Transaction
+    {
+        $this->type = self::TRANSFER;
+        return $this;
+    }
+
+    public function isIncome(): bool
+    {
+        return $this->getType() === self::INCOME;
+    }
+
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setType(): static
+    {
+        $this->type = self::EXPENSE;
+
+        return $this;
+    }
+
+    public function isExpense(): bool
+    {
+        return $this->getType() === self::INCOME;
+    }
+
+    public function isTransfer(): bool
+    {
+        return $this->getType() === self::INCOME;
     }
 }

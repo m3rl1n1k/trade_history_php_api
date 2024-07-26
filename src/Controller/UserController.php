@@ -39,13 +39,13 @@ class UserController extends BaseController
         $body = $this->decodeJson($body);
         $email = $body['secret_phrase'];
         if ($email !== $this->getUser()->getUserIdentifier()) {
-            return $this->jsonResponse(['message' => 'Not right secret phrase'], 401);
+            return $this->jsonResponse(["message" => 'Not right secret phrase'], 401);
         }
         $user = $userRepository->findOneBy(['email' => $this->getUser()->getUserIdentifier()]);
         $entityManager->beginTransaction();
         $entityManager->remove($user);
         $entityManager->flush();
         $entityManager->commit();
-        return $this->jsonResponse(['message' => "User is successfully removed"]);
+        return $this->jsonResponse(["message" => "User is successfully removed"]);
     }
 }

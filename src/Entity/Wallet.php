@@ -14,23 +14,23 @@ class Wallet
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['wallet:read', 'wallet:write'])]
+    #[Groups(['wallet:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 16)]
-    #[Groups(['wallet:read', 'wallet:write'])]
+    #[Groups(['wallet:read'])]
     private ?string $number = null;
 
     #[ORM\Column(length: 10)]
-    #[Groups(['wallet:read', 'wallet:write'])]
+    #[Groups(['wallet:read'])]
     private ?string $currency = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['wallet:read', 'wallet:write'])]
+    #[Groups(['wallet:read'])]
     private ?int $amount = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['wallet:read', 'wallet:write'])]
+    #[Groups(['wallet:read'])]
     private ?string $card_name = null;
 
     #[ORM\ManyToOne]
@@ -104,5 +104,15 @@ class Wallet
         $this->user = $user;
 
         return $this;
+    }
+
+    public function increment(int|float $amount): float|int
+    {
+        return $this->amount += is_int($amount) ? $amount : $amount * 100;
+    }
+
+    public function decrement(int|float $amount): float|int
+    {
+        return $this->amount -= is_int($amount) ? $amount : $amount * 100;
     }
 }

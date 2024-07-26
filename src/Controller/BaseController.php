@@ -20,7 +20,7 @@ class BaseController extends AbstractController
             $this->redirectToRoute('app_index');
         }
         if ($class !== null && $this->getUser()->getId() !== $class->getUser()->getId()) {
-            return $this->jsonResponse(['message' => "You don't have access to this resource."], Response::HTTP_FORBIDDEN);
+            return $this->jsonResponse(["message" => "You don't have access to this resource."], Response::HTTP_FORBIDDEN);
         }
         return null;
     }

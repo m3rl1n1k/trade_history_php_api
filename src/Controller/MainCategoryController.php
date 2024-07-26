@@ -61,7 +61,7 @@ class MainCategoryController extends BaseController
         $entityManager->persist($mainCategory);
         $entityManager->flush();
 
-        return $this->jsonResponse(['message' => "Main category is created"], Response::HTTP_CREATED);
+        return $this->jsonResponse(["message" => "Main category is created"], Response::HTTP_CREATED);
     }
 
     private function prepareBodyOfTransaction(string $body)
@@ -92,9 +92,9 @@ class MainCategoryController extends BaseController
             $entityManager->persist($mainCategory);
             $entityManager->flush();
 
-            return $this->jsonResponse(['message' => "Main category is updated"]);
+            return $this->jsonResponse(["message" => "Main category is updated"]);
         }
-        return $this->jsonResponse(['message' => "Main category is not found"], Response::HTTP_NOT_FOUND);
+        return $this->jsonResponse(["message" => "Main category is not found"], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/delete/{id}', name: 'app_main_category_delete', methods: ['DELETE'])]
@@ -103,7 +103,7 @@ class MainCategoryController extends BaseController
         $mainCategory = $mainCategoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (is_null($mainCategory)) {
-            return $this->jsonResponse(['message' => "Main category is not found"], Response::HTTP_NOT_FOUND);
+            return $this->jsonResponse(["message" => "Main category is not found"], Response::HTTP_NOT_FOUND);
         }
 
         if (null !== $permission = $this->checkUserAccess($mainCategory)) {
@@ -117,9 +117,9 @@ class MainCategoryController extends BaseController
             $entityManager->flush();
             $entityManager->commit();
         } catch (Exception $exception) {
-            return $this->jsonResponse(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+            return $this->jsonResponse(["message" => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        return $this->jsonResponse(['message' => "Main category is deleted."]);
+        return $this->jsonResponse(["message" => "Main category is deleted."]);
 
     }
 

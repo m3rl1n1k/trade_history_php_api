@@ -62,7 +62,7 @@ class CategoryController extends BaseController
         $entityManager->persist($mainCategory);
         $entityManager->flush();
 
-        return $this->jsonResponse(['message' => "Category is created"], Response::HTTP_CREATED);
+        return $this->jsonResponse(["message" => "Category is created"], Response::HTTP_CREATED);
     }
 
     private function prepareBodyOfTransaction(string $body)
@@ -93,9 +93,9 @@ class CategoryController extends BaseController
             $entityManager->persist($mainCategory);
             $entityManager->flush();
 
-            return $this->jsonResponse(['message' => "Category is updated"]);
+            return $this->jsonResponse(["message" => "Category is updated"]);
         }
-        return $this->jsonResponse(['message' => "Category is not found"], Response::HTTP_NOT_FOUND);
+        return $this->jsonResponse(["message" => "Category is not found"], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/delete/{id}', name: 'app_category_delete', methods: ['DELETE'])]
@@ -104,7 +104,7 @@ class CategoryController extends BaseController
         $mainCategory = $categoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (is_null($mainCategory)) {
-            return $this->jsonResponse(['message' => "Category is not found"], Response::HTTP_NOT_FOUND);
+            return $this->jsonResponse(["message" => "Category is not found"], Response::HTTP_NOT_FOUND);
         }
 
         if (null !== $permission = $this->checkUserAccess($mainCategory)) {
@@ -118,9 +118,9 @@ class CategoryController extends BaseController
             $entityManager->flush();
             $entityManager->commit();
         } catch (Exception $exception) {
-            return $this->jsonResponse(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+            return $this->jsonResponse(["message" => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        return $this->jsonResponse(['message' => "Category is deleted."]);
+        return $this->jsonResponse(["message" => "Category is deleted."]);
 
     }
 

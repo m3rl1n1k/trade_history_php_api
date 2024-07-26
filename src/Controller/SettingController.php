@@ -27,7 +27,7 @@ class SettingController extends BaseController
         if ($setting === null) {
             $settingRepository->save($setting, $user);
             $setting = [
-                'message' => "Reload page after successful generate settings",
+                "message" => "Reload page after successful generate settings",
             ];
         }
         return $this->jsonResponse(['setting' => $setting], context: [
@@ -55,7 +55,7 @@ class SettingController extends BaseController
         $setting->setSetting($toSave);
         $entityManager->flush();
 
-        return $this->jsonResponse(['message' => "Setting updated successfully"]);
+        return $this->jsonResponse(["message" => "Setting updated successfully"]);
     }
 
 

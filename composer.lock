@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ad4e65c67959376ab361eb0d1cc08fe",
+    "content-hash": "d13b4dbf310882478804bf0a56ed4b4f",
     "packages": [
         {
             "name": "babdev/pagerfanta-bundle",
@@ -92,6 +92,39 @@
                 }
             ],
             "time": "2023-12-20T23:40:09+00:00"
+        },
+        {
+            "name": "dannyben/php-quandl",
+            "version": "v0.5.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DannyBen/php-quandl.git",
+                "reference": "2087585d1161e9fb6c2a55207e8190b719a53aeb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DannyBen/php-quandl/zipball/2087585d1161e9fb6c2a55207e8190b719a53aeb",
+                "reference": "2087585d1161e9fb6c2a55207e8190b719a53aeb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "Quandl.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "support": {
+                "issues": "https://github.com/DannyBen/php-quandl/issues",
+                "source": "https://github.com/DannyBen/php-quandl/tree/master"
+            },
+            "time": "2016-06-22T16:19:33+00:00"
         },
         {
             "name": "doctrine/cache",

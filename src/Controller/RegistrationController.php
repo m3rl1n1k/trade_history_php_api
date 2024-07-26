@@ -24,7 +24,7 @@ class RegistrationController extends AbstractController
         $body = json_decode($request->getContent());
 
         if ($this->userRepository->findBy(['email' => $body->email])) {
-            return $this->json("Email is taken", Response::HTTP_BAD_REQUEST);
+            return $this->json(["message" => "Email is taken"], Response::HTTP_BAD_REQUEST);
         }
 
         $user = new User();
@@ -36,6 +36,6 @@ class RegistrationController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return $this->json('You registered successfully', Response::HTTP_CREATED);
+        return $this->json(["message" => "You registered successfully"], Response::HTTP_CREATED);
     }
 }

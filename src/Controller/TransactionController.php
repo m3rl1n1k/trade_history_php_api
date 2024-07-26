@@ -66,12 +66,11 @@ class TransactionController extends BaseController
     #[Route('/new', name: 'app_transaction_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-
         $body = $request->getContent();
         $body = $this->prepareBodyOfTransaction($body);
 
         if (is_string($body['wallet']) || is_string($body['category'])) {
-            return $this->jsonResponse(['message' => "Record not found", "items" => [
+            return $this->jsonResponse(["message" => "Items not found. You need first create them.", "items" => [
                 $body['wallet'],
                 $body['category']
             ]], Response::HTTP_NOT_FOUND);
@@ -84,7 +83,7 @@ class TransactionController extends BaseController
         $entityManager->persist($transaction);
         $entityManager->flush();
 
-        return $this->jsonResponse(['message' => "Transaction is created"], Response::HTTP_CREATED);
+        return $this->jsonResponse(["message" => "Transaction is created"], Response::HTTP_CREATED);
     }
 
     private function prepareBodyOfTransaction(string $body)
@@ -116,10 +115,10 @@ class TransactionController extends BaseController
             $entityManager->persist($transaction);
             $entityManager->flush();
 
-            return $this->jsonResponse(['message' => "Transaction is updated"]);
+            return $this->jsonResponse(["message" => "Transaction is updated"]);
         }
 
-        return $this->jsonResponse(['message' => "Transaction is not found"], Response::HTTP_NOT_FOUND);
+        return $this->jsonResponse(["message" => "Transaction is not found"], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/delete/{id}', name: 'app_transaction_delete', methods: ['DELETE'])]
@@ -128,7 +127,7 @@ class TransactionController extends BaseController
         $transaction = $transactionRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (is_null($transaction)) {
-            return $this->jsonResponse(['message' => "Transaction is not found"], Response::HTTP_NOT_FOUND);
+            return $this->jsonResponse(["message" => "Transaction is not found"], Response::HTTP_NOT_FOUND);
         }
 
         if (null !== $permission = $this->checkUserAccess($transaction)) {
@@ -141,10 +140,10 @@ class TransactionController extends BaseController
             $entityManager->flush();
             $entityManager->commit();
         } catch (Exception $exception) {
-            return $this->jsonResponse(['message' => "{$exception->getMessage()}"], Response::HTTP_BAD_REQUEST);
+            return $this->jsonResponse(["message" => "{$exception->getMessage()}"], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->jsonResponse(['message' => "Transaction is deleted."]);
+        return $this->jsonResponse(["message" => "Transaction is deleted."]);
     }
 
 
