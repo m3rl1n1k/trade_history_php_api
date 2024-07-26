@@ -49,7 +49,7 @@ class TransactionController extends BaseController
     #[Route('/{id}', name: 'app_transaction_show', methods: ['GET'])]
     public function show(int $id, TransactionRepository $transactionRepository): JsonResponse
     {
-        $transaction = $transactionRepository->findOneBy(['id' => $id]);
+        $transaction = $transactionRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (null !== $permission = $this->checkUserAccess($transaction)) {
             return $permission;
@@ -102,7 +102,7 @@ class TransactionController extends BaseController
     public function edit(int $id, Request $request, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $body = $request->getContent();
-        $transaction = $transactionRepository->findOneBy(['id' => $id]);
+        $transaction = $transactionRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (null !== $permission = $this->checkUserAccess($transaction)) {
             return $permission;
@@ -125,7 +125,7 @@ class TransactionController extends BaseController
     #[Route('/delete/{id}', name: 'app_transaction_delete', methods: ['DELETE'])]
     public function delete(int $id, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $transaction = $transactionRepository->findOneBy(['id' => $id]);
+        $transaction = $transactionRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (is_null($transaction)) {
             return $this->jsonResponse(['message' => "Transaction is not found"], Response::HTTP_NOT_FOUND);

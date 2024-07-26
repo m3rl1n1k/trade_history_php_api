@@ -40,8 +40,7 @@ class Setting
 
     public function getSetting(): null|string|stdClass
     {
-//        return json_decode($this->setting);
-        return $this->setting;
+        return json_decode($this->setting);
     }
 
     public function setSetting(null|array|string $setting): static
@@ -74,6 +73,10 @@ class Setting
             "pagination" => [
                 'transactions_per_page' => 20
             ],
+            "currency" => [
+                "currency_default" => "USD",
+                "currency_selected" => "PLN",
+            ]
         ];
         return json_encode($setting, JSON_UNESCAPED_SLASHES);
     }

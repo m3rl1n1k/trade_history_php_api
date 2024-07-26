@@ -28,6 +28,7 @@ class MainCategory
     /**
      * @var Collection<int, Category>
      */
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'main', orphanRemoval: true)]
     #[Groups(["mainCategory:read"])]
     private Collection $categories;

@@ -17,11 +17,11 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["mainCategory:read"])]
+    #[Groups(["category:read"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups(["mainCategory:read"])]
+    #[Groups(["category:read"])]
     private ?string $color = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
@@ -65,7 +65,7 @@ class Category
         return $this->color;
     }
 
-    public function setColor(string $color): static
+    public function setColor(?string $color): static
     {
         $this->color = $color;
 

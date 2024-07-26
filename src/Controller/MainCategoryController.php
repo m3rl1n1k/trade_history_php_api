@@ -77,7 +77,7 @@ class MainCategoryController extends BaseController
     #[Route('/edit/{id}', name: 'app_main_category_edit', methods: ['PATCH'])]
     public function edit(int $id, Request $request, MainCategoryRepository $mainCategoryRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $mainCategory = $mainCategoryRepository->findOneBy(['id' => $id]);
+        $mainCategory = $mainCategoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (null !== $permission = $this->checkUserAccess($mainCategory)) {
             return $permission;
@@ -100,7 +100,7 @@ class MainCategoryController extends BaseController
     #[Route('/delete/{id}', name: 'app_main_category_delete', methods: ['DELETE'])]
     public function delete(int $id, MainCategoryRepository $mainCategoryRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $mainCategory = $mainCategoryRepository->findOneBy(['id' => $id]);
+        $mainCategory = $mainCategoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (is_null($mainCategory)) {
             return $this->jsonResponse(['message' => "Main category is not found"], Response::HTTP_NOT_FOUND);
@@ -109,7 +109,7 @@ class MainCategoryController extends BaseController
         if (null !== $permission = $this->checkUserAccess($mainCategory)) {
             return $permission;
         }
-        
+
         try {
             $entityManager->beginTransaction();
 

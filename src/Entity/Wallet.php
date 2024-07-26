@@ -9,6 +9,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: WalletRepository::class)]
 class Wallet
 {
+
+    const CARD_NUMBER_LENGTH = 8;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -24,6 +26,7 @@ class Wallet
     private ?string $currency = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['wallet:read', 'wallet:write'])]
     private ?int $amount = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -31,7 +34,7 @@ class Wallet
     private ?string $card_name = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
     public function getId(): ?int
@@ -44,9 +47,13 @@ class Wallet
         return $this->number;
     }
 
-    public function setNumber(string $number): static
+    public function setNumber(string|int $currency): static
     {
-        $this->number = $number;
+        $number = null;
+        for ($i = 1; $i <= self::CARD_NUMBER_LENGTH; $i++) {
+            $number .= mt_rand(0, 9);
+        }
+        $this->number = $currency . $number;
 
         return $this;
     }
@@ -63,14 +70,14 @@ class Wallet
         return $this;
     }
 
-    public function getAmount(): ?int
+    public function getAmount(): ?float
     {
-        return $this->amount;
+        return $this->amount / 100;
     }
 
-    public function setAmount(?int $amount): static
+    public function setAmount(?float $amount): static
     {
-        $this->amount = $amount;
+        $this->amount = $amount * 100;
 
         return $this;
     }

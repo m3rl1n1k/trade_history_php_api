@@ -38,7 +38,7 @@ class SettingController extends BaseController
         ]);
     }
 
-    #[Route('/edit', name: 'app_setting_edit', methods: ['PUT', 'PATCH'])]
+    #[Route('/edit', name: 'app_settings_edit', methods: ['PATCH'])]
     public function edit(Request $request, SettingRepository $settingRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $setting = $settingRepository->findOneBy(['user' => $this->getUser()]);

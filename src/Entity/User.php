@@ -40,12 +40,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Transaction>
      */
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $transactions;
 
     /**
      * @var Collection<int, MainCategory>
      */
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[ORM\OneToMany(targetEntity: MainCategory::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $mainCategories;
 
