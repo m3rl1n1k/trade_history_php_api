@@ -8,8 +8,10 @@ use App\Repository\CategoryRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Repository\WalletRepository;
+use App\Service\CalculationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +24,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
 class TransactionController extends BaseController
 {
+    protected string $flag;
+
     public function __construct(
         protected readonly WalletRepository   $walletRepository,
         protected readonly CategoryRepository $categoryRepository,
@@ -29,6 +33,7 @@ class TransactionController extends BaseController
         protected SerializerInterface         $serializer,
     )
     {
+
     }
 
     #[Route('/', name: 'app_transactions', methods: ['GET'])]
@@ -64,21 +69,18 @@ class TransactionController extends BaseController
      * @throws Exception
      */
     #[Route('/new', name: 'app_transaction_new', methods: ['POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function new(Request $request, EntityManagerInterface $entityManager, CalculationService $calculationService): JsonResponse
     {
-        $body = $request->getContent();
-        $body = $this->prepareBodyOfTransaction($body);
+        $body = $this->prepareBodyOfTransaction($request->getContent());
 
-        if (is_string($body['wallet']) || is_string($body['category'])) {
-            return $this->jsonResponse(["message" => "Items not found. You need first create them.", "items" => [
-                $body['wallet'],
-                $body['category']
-            ]], Response::HTTP_NOT_FOUND);
+        if ($response = $this->notFoundItemsResponse([$body->category, $body->wallet])) {
+            return $response;
         }
-
         $transaction = new Transaction();
         $transaction->setUser($this->getUser());
         $transaction = $transaction->setDataForTransaction($transaction, $body);
+
+        $calculationService->calculate($body->wallet, $transaction, ['flag' => $body->flag]);
 
         $entityManager->persist($transaction);
         $entityManager->flush();
@@ -86,11 +88,12 @@ class TransactionController extends BaseController
         return $this->jsonResponse(["message" => "Transaction is created"], Response::HTTP_CREATED);
     }
 
-    private function prepareBodyOfTransaction(string $body)
+    private function prepareBodyOfTransaction(string $body): stdClass
     {
         $body = $this->decodeJson($body);
-        $body['wallet'] = $this->walletRepository->getRecordEntityFromUrl($body['wallet']['url']);
-        $body['category'] = $this->categoryRepository->getRecordEntityFromUrl($body['category']['url']);
+        $body->wallet = $this->walletRepository->getRecordEntityFromUrl($body->wallet->url);
+        $body->category = $this->categoryRepository->getRecordEntityFromUrl($body->category->url);
+        $this->flag = $body->flag;
         return $body;
     }
 
@@ -98,20 +101,27 @@ class TransactionController extends BaseController
      * @throws Exception
      */
     #[Route('/edit/{id}', name: 'app_transaction_edit', methods: ['PATCH'])]
-    public function edit(int $id, Request $request, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function edit(int $id, Request $request, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager, CalculationService $calculationService): JsonResponse
     {
         $body = $request->getContent();
+        $body = $this->prepareBodyOfTransaction($body);
+
         $transaction = $transactionRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
         if (null !== $permission = $this->checkUserAccess($transaction)) {
             return $permission;
         }
+        if (!is_null($transaction)) {
+            if ($response = $this->notFoundItemsResponse([$body->category, $body->wallet])) {
+                return $response;
+            }
+            $oldAmount = $transaction->getAmount();
 
-        if ($body && !is_null($transaction)) {
-
-            $body = $this->prepareBodyOfTransaction($body);
             $transaction = $transaction->setDataForTransaction($transaction, $body);
-
+            $calculationService->calculate($body->wallet, $transaction, [
+                'flag' => $body->flag,
+                'old_amount' => $oldAmount,
+            ]);
             $entityManager->persist($transaction);
             $entityManager->flush();
 
@@ -122,7 +132,7 @@ class TransactionController extends BaseController
     }
 
     #[Route('/delete/{id}', name: 'app_transaction_delete', methods: ['DELETE'])]
-    public function delete(int $id, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function delete(int $id, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager, CalculationService $calculationService): JsonResponse
     {
         $transaction = $transactionRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
@@ -135,12 +145,12 @@ class TransactionController extends BaseController
         }
         try {
             $entityManager->beginTransaction();
-
+            $calculationService->calculate($transaction->getWallet(), $transaction, ['flag' => 'remove']);
             $entityManager->remove($transaction);
             $entityManager->flush();
             $entityManager->commit();
         } catch (Exception $exception) {
-            return $this->jsonResponse(["message" => "{$exception->getMessage()}"], Response::HTTP_BAD_REQUEST);
+            return $this->jsonResponse(["message" => "{$exception->getMessage()} {$exception->getFile()}"], Response::HTTP_BAD_REQUEST);
         }
 
         return $this->jsonResponse(["message" => "Transaction is deleted."]);

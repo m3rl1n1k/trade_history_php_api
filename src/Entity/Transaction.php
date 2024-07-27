@@ -6,14 +6,15 @@ use App\Repository\TransactionRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
+use stdClass;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
-    const INCOME = 1;
-    const EXPENSE = 2;
-    const TRANSFER = 3;
+    const INCOME = "income";
+    const EXPENSE = "expense";
+    const TRANSFER = "transfer";
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -26,7 +27,7 @@ class Transaction
 
     #[ORM\Column]
     #[Groups(['transaction:read', 'transaction:write'])]
-    private ?int $type = null;
+    private ?string $type = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['transaction:read', 'transaction:write'])]
@@ -62,9 +63,14 @@ class Transaction
 
     public function setAmount(int|float $amount): static
     {
-        $this->amount = is_int($amount) ? $amount : $amount * 100;
+        $this->amount = $amount * 100;
 
         return $this;
+    }
+
+    public function getAmountCurrent(): ?float
+    {
+        return $this->amount;
     }
 
     public function getDescription(): ?string
@@ -130,15 +136,22 @@ class Transaction
     /**
      * @throws Exception
      */
-    public function setDataForTransaction(Transaction $transaction, array $data): Transaction
+    public function setDataForTransaction(Transaction $transaction, stdClass $data): Transaction
     {
-        $transaction->setAmount($data['amount']);
-        $transaction->setType();
-        $transaction->setDescription($data['description']);
-        $transaction->setCreatedAt(new DateTimeImmutable($data['created_at']));
-        $transaction->setCategory($data['category']);
-        $transaction->setWallet($data['wallet']);
+        $transaction->setAmount($data->amount);
+        $transaction->setTypeDefault();
+        $transaction->setDescription($data->description);
+        $transaction->setCreatedAt(new DateTimeImmutable($data->created_at));
+        $transaction->setCategory($data->category);
+        $transaction->setWallet($data->wallet);
         return $transaction;
+    }
+
+    public function setTypeDefault(): static
+    {
+        $this->type = self::EXPENSE;
+
+        return $this;
     }
 
     public function setIncome(): Transaction
@@ -164,25 +177,19 @@ class Transaction
         return $this->getType() === self::INCOME;
     }
 
-    public function getType(): ?int
+    public function getType(): ?string
     {
         return $this->type;
     }
 
-    public function setType(): static
-    {
-        $this->type = self::EXPENSE;
-
-        return $this;
-    }
-
     public function isExpense(): bool
     {
-        return $this->getType() === self::INCOME;
+        return $this->getType() === self::EXPENSE;
     }
 
     public function isTransfer(): bool
     {
-        return $this->getType() === self::INCOME;
+        return $this->getType() === self::TRANSFER;
     }
+
 }

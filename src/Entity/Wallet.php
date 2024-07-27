@@ -25,7 +25,7 @@ class Wallet
     #[Groups(['wallet:read'])]
     private ?string $currency = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: "bigint", nullable: true)]
     #[Groups(['wallet:read'])]
     private ?int $amount = null;
 
@@ -82,6 +82,18 @@ class Wallet
         return $this;
     }
 
+    public function getAmountCurrent(): ?float
+    {
+        return $this->amount;
+    }
+
+    public function setAmountCurrent(?float $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
     public function getCardName(): ?string
     {
         return $this->card_name;
@@ -106,13 +118,13 @@ class Wallet
         return $this;
     }
 
-    public function increment(int|float $amount): float|int
+    public function increment($amount): int
     {
-        return $this->amount += is_int($amount) ? $amount : $amount * 100;
+        return $this->amount += $amount;
     }
 
-    public function decrement(int|float $amount): float|int
+    public function decrement($amount): int
     {
-        return $this->amount -= is_int($amount) ? $amount : $amount * 100;
+        return $this->amount -= $amount;
     }
 }

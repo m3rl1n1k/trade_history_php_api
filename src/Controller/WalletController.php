@@ -26,7 +26,6 @@ class WalletController extends BaseController
     #[Route('/', name: 'app_wallets', methods: ['GET'])]
     public function index(WalletRepository $walletRepository): JsonResponse
     {
-
         if (null !== $permission = $this->checkUserAccess()) {
             return $permission;
         }
@@ -64,12 +63,12 @@ class WalletController extends BaseController
         $body = $request->getContent();
         $body = $this->decodeJson($body);
 
-        $currency = $body['currency'] ?? $this->settingService->currencyDefaultUser();
+        $currency = $body->currency ?? $this->settingService->currencyDefaultUser();
 
         $wallet->setUser($this->getUser());
-        $wallet->setAmount($body['amount']);
+        $wallet->setAmount($body->amount);
         $wallet->setCurrency($currency);
-        $wallet->setCardName($body['card_name']);
+        $wallet->setCardName($body->card_name);
         $wallet->setNumber($currency);
 
 
@@ -90,12 +89,12 @@ class WalletController extends BaseController
         $body = $request->getContent();
         $body = $this->decodeJson($body);
 
-        $currency = $body['currency'] ?? $this->settingService->currencyDefaultUser();
+        $currency = $body->currency ?? $this->settingService->currencyDefaultUser();
 
-        if ($body && !is_null($wallet)) {
-            $wallet->setAmount($body['amount']);
+        if (!is_null($wallet)) {
+            $wallet->setAmount($body->amount);
             $wallet->setCurrency($currency);
-            $wallet->setCardName($body['card_name']);
+            $wallet->setCardName($body->card_name);
 
             $entityManager->persist($wallet);
             $entityManager->flush();

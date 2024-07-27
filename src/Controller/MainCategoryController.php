@@ -7,6 +7,7 @@ use App\Repository\MainCategoryRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,8 +55,8 @@ class MainCategoryController extends BaseController
 
         $body = $request->getContent();
         $body = $this->prepareBodyOfTransaction($body);
-        $mainCategory->setName($body['name']);
-        $mainCategory->setColor($body['color']);
+        $mainCategory->setName($body->name);
+        $mainCategory->setColor($body->color);
         $mainCategory->setUser($this->getUser());
 
         $entityManager->persist($mainCategory);
@@ -64,10 +65,10 @@ class MainCategoryController extends BaseController
         return $this->jsonResponse(["message" => "Main category is created"], Response::HTTP_CREATED);
     }
 
-    private function prepareBodyOfTransaction(string $body)
+    private function prepareBodyOfTransaction(string $body): stdClass
     {
         $body = $this->decodeJson($body);
-        $body['user'] = $this->userRepository->getRecordEntityFromUrl($body['user']['url']);
+        $body->user = $this->userRepository->getRecordEntityFromUrl($body->user->url);
         return $body;
     }
 
@@ -85,9 +86,9 @@ class MainCategoryController extends BaseController
         $body = $request->getContent();
         $body = $this->decodeJson($body);
 
-        if ($body && !is_null($mainCategory)) {
-            $mainCategory->setName($body['name']);
-            $mainCategory->setColor($body['color']);
+        if (!is_null($mainCategory)) {
+            $mainCategory->setName($body->name);
+            $mainCategory->setColor($body->color);
 
             $entityManager->persist($mainCategory);
             $entityManager->flush();

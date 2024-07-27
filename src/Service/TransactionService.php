@@ -20,12 +20,7 @@ class TransactionService
 
     public function newTransaction(Wallet $wallet, Transaction $transaction): void
     {
-        if ($transaction->isIncome()) {
-            $wallet->setAmount($wallet->increment($transaction->getAmount()));
-        }
-        if ($transaction->isExpense()) {
-            $wallet->setAmount($wallet->decrement($transaction->getAmount()));
-        }
+
     }
 
 //    public function editTransaction(Wallet $wallet, Transaction $transaction, float $oldAmount = 0):

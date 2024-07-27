@@ -7,6 +7,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\MainCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,13 +51,17 @@ class CategoryController extends BaseController
     #[Route('/new', name: 'app_category_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $mainCategory = new Category();
-
         $body = $request->getContent();
         $body = $this->prepareBodyOfTransaction($body);
-        $mainCategory->setName($body['name']);
-        $mainCategory->setColor($body['color']);
-        $mainCategory->setMain($body['main_category']);
+        
+        if ($main = $this->notFoundItemsResponse([$body->main])) {
+            return $main;
+        }
+
+        $mainCategory = new Category();
+        $mainCategory->setName($body->name);
+        $mainCategory->setColor($body->color);
+        $mainCategory->setMain($body->main);
         $mainCategory->setUser($this->getUser());
 
         $entityManager->persist($mainCategory);
@@ -65,10 +70,10 @@ class CategoryController extends BaseController
         return $this->jsonResponse(["message" => "Category is created"], Response::HTTP_CREATED);
     }
 
-    private function prepareBodyOfTransaction(string $body)
+    private function prepareBodyOfTransaction(string $body): stdClass
     {
         $body = $this->decodeJson($body);
-        $body['main_category'] = $this->mainCategoryRepository->getRecordEntityFromUrl($body['main']['url']);
+        $body->main = $this->mainCategoryRepository->getRecordEntityFromUrl($body->main->url);
         return $body;
     }
 
