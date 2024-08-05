@@ -9,7 +9,7 @@
 /vendor/
 ###< symfony/framework-bundle ###
 .idea
-/.env.local
+status.lock
 /.env.install
 /logs/nginx/
 /docker/configs/nginx/project.conf
