@@ -6,6 +6,9 @@ if [ -f "$FILE" ]; then
   if [[ $1 == "run" ]]; then
       docker compose --env-file .env.local up;
   fi
+  if [[ $1 == "restart" ]]; then
+      docker compose --env-file .env.local restart;
+  fi
   if [[ $1 == "php" ]]; then
       docker compose --env-file .env.local exec -it "php" /bin/bash;
   fi
