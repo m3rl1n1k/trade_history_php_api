@@ -11,8 +11,8 @@ class WalletNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
-        private NormalizerInterface $normalizer,
-        protected RouterInterface   $router,
+        private readonly NormalizerInterface $normalizer,
+        protected RouterInterface            $router,
     )
     {
     }
