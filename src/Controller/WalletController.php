@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/wallet')]
+#[Route('/wallets')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
 class WalletController extends BaseController
 {

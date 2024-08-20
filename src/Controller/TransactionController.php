@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/transaction')]
+#[Route('/transactions')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
 class TransactionController extends BaseController
 {
@@ -73,14 +73,14 @@ class TransactionController extends BaseController
     {
         $body = $this->prepareBodyOfTransaction($request->getContent());
 
-        if ($response = $this->notFoundItemsResponse([$body->category, $body->wallet])) {
+        if ($response = $this->notFoundItemsResponse([$body->wallet])) {
             return $response;
         }
         $transaction = new Transaction();
         $transaction->setUser($this->getUser());
         $transaction = $transaction->setDataForTransaction($transaction, $body);
 
-        $calculationService->calculate($body->wallet, $transaction, ['flag' => $body->flag]);
+        $calculationService->calculate($body->wallet, $transaction, $body->flag);
 
         $entityManager->persist($transaction);
         $entityManager->flush();
@@ -92,7 +92,7 @@ class TransactionController extends BaseController
     {
         $body = $this->decodeJson($body);
         $body->wallet = $this->walletRepository->getRecordEntityFromUrl($body->wallet->url);
-        $body->category = $this->categoryRepository->getRecordEntityFromUrl($body->category->url);
+        $body->category = $body->category->url ? $this->categoryRepository->getRecordEntityFromUrl($body->category->url): null;
         $this->flag = $body->flag;
         return $body;
     }
@@ -100,7 +100,7 @@ class TransactionController extends BaseController
     /**
      * @throws Exception
      */
-    #[Route('/edit/{id}', name: 'app_transaction_edit', methods: ['PATCH'])]
+    #[Route('/edit/{id}', name: 'app_transaction_edit', methods: ['PATCH','PUT'])]
     public function edit(int $id, Request $request, TransactionRepository $transactionRepository, EntityManagerInterface $entityManager, CalculationService $calculationService): JsonResponse
     {
         $body = $request->getContent();
@@ -118,8 +118,7 @@ class TransactionController extends BaseController
             $oldAmount = $transaction->getAmount();
 
             $transaction = $transaction->setDataForTransaction($transaction, $body);
-            $calculationService->calculate($body->wallet, $transaction, [
-                'flag' => $body->flag,
+            $calculationService->calculate($body->wallet, $transaction, $body->flag,[
                 'old_amount' => $oldAmount,
             ]);
             $entityManager->persist($transaction);
@@ -145,7 +144,7 @@ class TransactionController extends BaseController
         }
         try {
             $entityManager->beginTransaction();
-            $calculationService->calculate($transaction->getWallet(), $transaction, ['flag' => 'remove']);
+            $calculationService->calculate($transaction->getWallet(), $transaction, 'remove');
             $entityManager->remove($transaction);
             $entityManager->flush();
             $entityManager->commit();

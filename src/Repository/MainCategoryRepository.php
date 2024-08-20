@@ -12,7 +12,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class MainCategoryRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+
+
+    public function __construct(ManagerRegistry $registry, private readonly CategoryRepository $categoryRepository)
     {
         parent::__construct($registry, MainCategory::class);
     }

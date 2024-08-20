@@ -12,9 +12,9 @@ class CalculationService implements CalculationInterface
     }
 
 
-    public function calculate($wallet, $transaction, array $options = []): void
+    public function calculate($wallet, $transaction, string $flag, array $options = []): void
     {
-        switch ($options['flag']) {
+        switch ($flag) {
             case "new":
                 $this->newTransaction($wallet, $transaction);
                 break;

@@ -21,9 +21,9 @@ class Transaction
     #[Groups(['transaction:read', 'transaction:write'])]
     private ?int $id = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: "float")]
     #[Groups(['transaction:read', 'transaction:write'])]
-    private ?int $amount = null;
+    private ?float $amount = null;
 
     #[ORM\Column]
     #[Groups(['transaction:read', 'transaction:write'])]
@@ -48,6 +48,7 @@ class Transaction
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\JoinColumn(onDelete: 'set null')]
     #[Groups(['transaction:read', 'transaction:write'])]
     private ?Category $category = null;
 
@@ -58,12 +59,12 @@ class Transaction
 
     public function getAmount(): ?float
     {
-        return $this->amount / 100;
+        return $this->amount;
     }
 
-    public function setAmount(int|float $amount): static
+    public function setAmount(float $amount): static
     {
-        $this->amount = $amount * 100;
+        $this->amount = $amount;
 
         return $this;
     }
@@ -138,11 +139,21 @@ class Transaction
      */
     public function setDataForTransaction(Transaction $transaction, stdClass $data): Transaction
     {
+        $category = !is_string($data->category) ? $data->category : null;
+        $create_at = $data->created_at . $this->getCurrentTime();
+        if ($data->flag === 'new')
+        {
+            match ($data->type){
+                "income" => $transaction->setIncome(),
+                "expense" => $transaction->setExpense(),
+                default => $transaction->setTypeDefault(),
+            };
+        }
+
         $transaction->setAmount($data->amount);
-        $transaction->setTypeDefault();
         $transaction->setDescription($data->description);
-        $transaction->setCreatedAt(new DateTimeImmutable($data->created_at));
-        $transaction->setCategory($data->category);
+        $transaction->setCreatedAt(new DateTimeImmutable($create_at));
+        $transaction->setCategory($category);
         $transaction->setWallet($data->wallet);
         return $transaction;
     }
@@ -190,6 +201,13 @@ class Transaction
     public function isTransfer(): bool
     {
         return $this->getType() === self::TRANSFER;
+    }
+
+    private function getCurrentTime(): string
+    {
+        $date = new DateTimeImmutable();
+        return date_format($date, 'H:i:s');
+
     }
 
 }

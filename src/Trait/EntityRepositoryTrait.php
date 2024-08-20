@@ -13,7 +13,7 @@ trait EntityRepositoryTrait
         return $result;
     }
 
-    protected function extractIdFromUrl(string $url): int
+    protected function extractIdFromUrl(string $url): string|int
     {
         $data = explode("/", $url);
         return $data[count($data) - 1];

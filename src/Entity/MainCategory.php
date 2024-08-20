@@ -6,6 +6,7 @@ use App\Repository\MainCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MainCategoryRepository::class)]
@@ -18,7 +19,7 @@ class MainCategory
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["mainCategory:read", "mainCategory:write"])]
+    #[Groups(["mainCategory:read", "category:read"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, nullable: true)]
@@ -56,6 +57,9 @@ class MainCategory
 
     public function setName(string $name): static
     {
+        if (strlen($name) == 0) {
+            throw new InvalidArgumentException("Name can't be empty");
+        }
         $this->name = $name;
 
         return $this;

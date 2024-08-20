@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/setting')]
+#[Route('/settings')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
 class SettingController extends BaseController
 {
@@ -32,8 +32,7 @@ class SettingController extends BaseController
         }
         return $this->jsonResponse(['setting' => $setting], context: [
             AbstractNormalizer::ATTRIBUTES => [
-                'setting',
-                'user' => []
+                'setting'
             ]
         ]);
     }
@@ -50,7 +49,7 @@ class SettingController extends BaseController
         $originalSetting = $this->decodeJson($setting->getSetting());
         $updatedSetting = $this->decodeJson($request->getContent())['setting'];
 
-        $toSave = array_replace_recursive($originalSetting, $updatedSetting);
+        $toSave = array_replace_recursive($originalSetting->setting, $updatedSetting);
 
         $setting->setSetting($toSave);
         $entityManager->flush();

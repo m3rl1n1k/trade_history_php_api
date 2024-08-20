@@ -18,19 +18,19 @@ class Wallet
     private ?int $id = null;
 
     #[ORM\Column(length: 16)]
-    #[Groups(['wallet:read'])]
+    #[Groups(['wallet:read', 'transaction:read'])]
     private ?string $number = null;
 
     #[ORM\Column(length: 10)]
     #[Groups(['wallet:read'])]
     private ?string $currency = null;
 
-    #[ORM\Column(type: "bigint", nullable: true)]
+    #[ORM\Column(type: "float", nullable: true)]
     #[Groups(['wallet:read'])]
     private ?int $amount = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['wallet:read'])]
+    #[Groups(['wallet:read', 'transaction:read'])]
     private ?string $card_name = null;
 
     #[ORM\ManyToOne]
@@ -72,12 +72,12 @@ class Wallet
 
     public function getAmount(): ?float
     {
-        return $this->amount / 100;
+        return $this->amount;
     }
 
     public function setAmount(?float $amount): static
     {
-        $this->amount = $amount * 100;
+        $this->amount = $amount;
 
         return $this;
     }

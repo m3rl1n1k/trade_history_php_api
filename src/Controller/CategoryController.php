@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/category')]
+#[Route('/categories/sub')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
 class CategoryController extends BaseController
 {
@@ -39,11 +39,11 @@ class CategoryController extends BaseController
     #[Route('/{id}', name: "app_category_show", methods: ['GET'])]
     public function show(int $id, CategoryRepository $categoryRepository): JsonResponse
     {
-        $mainCategory = $categoryRepository->findOneBy(['user' => $this->getUser()->getId(), 'id' => $id]);
-        if (null !== $permission = $this->checkUserAccess($mainCategory)) {
+        $subCategory = $categoryRepository->findOneBy(['user' => $this->getUser()->getId(), 'id' => $id]);
+        if (null !== $permission = $this->checkUserAccess($subCategory)) {
             return $permission;
         }
-        return $this->jsonResponse(['main_category' => $mainCategory], context: [
+        return $this->jsonResponse(['main_category' => $subCategory], context: [
             AbstractNormalizer::GROUPS => ['groups' => 'category:read']
         ]);
     }
@@ -53,21 +53,21 @@ class CategoryController extends BaseController
     {
         $body = $request->getContent();
         $body = $this->prepareBodyOfTransaction($body);
-        
+
         if ($main = $this->notFoundItemsResponse([$body->main])) {
             return $main;
         }
 
-        $mainCategory = new Category();
-        $mainCategory->setName($body->name);
-        $mainCategory->setColor($body->color);
-        $mainCategory->setMain($body->main);
-        $mainCategory->setUser($this->getUser());
+        $subCategory = new Category();
+        $subCategory->setName($body->name);
+        $subCategory->setColor($body->color);
+        $subCategory->setMain($body->main);
+        $subCategory->setUser($this->getUser());
 
-        $entityManager->persist($mainCategory);
+        $entityManager->persist($subCategory);
         $entityManager->flush();
 
-        return $this->jsonResponse(["message" => "Category is created"], Response::HTTP_CREATED);
+        return $this->jsonResponse(["message" => "Category \"$body->name\" created"], Response::HTTP_CREATED);
     }
 
     private function prepareBodyOfTransaction(string $body): stdClass
@@ -80,52 +80,53 @@ class CategoryController extends BaseController
     /**
      * @throws Exception
      */
-    #[Route('/edit/{id}', name: 'app_category_edit', methods: ['PATCH'])]
+    #[Route('/edit/{id}', name: 'app_category_edit', methods: ['PATCH', 'PUT'])]
     public function edit(int $id, Request $request, CategoryRepository $categoryRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $mainCategory = $categoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
+        $subCategory = $categoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
-        if (null !== $permission = $this->checkUserAccess($mainCategory)) {
+        if (null !== $permission = $this->checkUserAccess($subCategory)) {
             return $permission;
         }
         $body = $request->getContent();
-        $body = $this->decodeJson($body);
+        $body = $this->prepareBodyOfTransaction($body);
 
-        if ($body && !is_null($mainCategory)) {
-            $mainCategory->setName($body['name']);
-            $mainCategory->setColor($body['color']);
+        if (!is_null($subCategory)) {
+            $subCategory->setName($body->name);
+            $subCategory->setColor($body->color);
+            $subCategory->setMain($body->main);
 
-            $entityManager->persist($mainCategory);
+            $entityManager->persist($subCategory);
             $entityManager->flush();
 
-            return $this->jsonResponse(["message" => "Category is updated"]);
+            return $this->jsonResponse(["message" => "Category \"$body->name\" updated"]);
         }
-        return $this->jsonResponse(["message" => "Category is not found"], Response::HTTP_NOT_FOUND);
+        return $this->jsonResponse(["message" => "Category \"$body->name\" not found"], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/delete/{id}', name: 'app_category_delete', methods: ['DELETE'])]
     public function delete(int $id, CategoryRepository $categoryRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $mainCategory = $categoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
+        $subCategory = $categoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
 
-        if (is_null($mainCategory)) {
+        if (is_null($subCategory)) {
             return $this->jsonResponse(["message" => "Category is not found"], Response::HTTP_NOT_FOUND);
         }
 
-        if (null !== $permission = $this->checkUserAccess($mainCategory)) {
+        if (null !== $permission = $this->checkUserAccess($subCategory)) {
             return $permission;
         }
 
         try {
             $entityManager->beginTransaction();
 
-            $entityManager->remove($mainCategory);
+            $entityManager->remove($subCategory);
             $entityManager->flush();
             $entityManager->commit();
         } catch (Exception $exception) {
             return $this->jsonResponse(["message" => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        return $this->jsonResponse(["message" => "Category is deleted."]);
+        return $this->jsonResponse(["message" => "Category \" {$subCategory->getName()} \" deleted."]);
 
     }
 

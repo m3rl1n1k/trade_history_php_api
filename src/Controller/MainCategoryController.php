@@ -4,10 +4,8 @@ namespace App\Controller;
 
 use App\Entity\MainCategory;
 use App\Repository\MainCategoryRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,14 +13,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/main/category')]
+#[Route('/categories/main')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
 class MainCategoryController extends BaseController
 {
-
-    public function __construct(private readonly UserRepository $userRepository)
-    {
-    }
 
     #[Route('/', name: "app_main_categories", methods: ['GET'])]
     public function index(MainCategoryRepository $mainCategoryRepository): JsonResponse
@@ -49,12 +43,18 @@ class MainCategoryController extends BaseController
     }
 
     #[Route('/new', name: 'app_main_category_new', methods: ['POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function new(Request $request, EntityManagerInterface $entityManager, MainCategoryRepository $mainCategoryRepository): JsonResponse
     {
+
         $mainCategory = new MainCategory();
 
         $body = $request->getContent();
-        $body = $this->prepareBodyOfTransaction($body);
+        $body = $this->decodeJson($body);
+
+        if ($mainCategoryRepository->findOneBy(['name' => $body->name]) !== null) {
+            return $this->jsonResponse(['message' => 'Main category already exists'], Response::HTTP_BAD_REQUEST);
+        }
+
         $mainCategory->setName($body->name);
         $mainCategory->setColor($body->color);
         $mainCategory->setUser($this->getUser());
@@ -65,17 +65,10 @@ class MainCategoryController extends BaseController
         return $this->jsonResponse(["message" => "Main category is created"], Response::HTTP_CREATED);
     }
 
-    private function prepareBodyOfTransaction(string $body): stdClass
-    {
-        $body = $this->decodeJson($body);
-        $body->user = $this->userRepository->getRecordEntityFromUrl($body->user->url);
-        return $body;
-    }
-
     /**
      * @throws Exception
      */
-    #[Route('/edit/{id}', name: 'app_main_category_edit', methods: ['PATCH'])]
+    #[Route('/edit/{id}', name: 'app_main_category_edit', methods: ['PATCH', 'PUT'])]
     public function edit(int $id, Request $request, MainCategoryRepository $mainCategoryRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $mainCategory = $mainCategoryRepository->findOneBy(['id' => $id, 'user' => $this->getUser()->getId()]);
@@ -120,7 +113,7 @@ class MainCategoryController extends BaseController
         } catch (Exception $exception) {
             return $this->jsonResponse(["message" => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        return $this->jsonResponse(["message" => "Main category is deleted."]);
+        return $this->jsonResponse(["message" => "Main category \"{$mainCategory->getName()}\" is deleted."]);
 
     }
 

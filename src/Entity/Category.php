@@ -14,15 +14,16 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["category:read"])]
+    #[Groups(["category:read", "mainCategory:read"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["category:read"])]
+
+    #[Groups(["category:read", "transaction:read", "mainCategory:read"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups(["category:read"])]
+    #[Groups(["category:read", "mainCategory:read"])]
     private ?string $color = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]

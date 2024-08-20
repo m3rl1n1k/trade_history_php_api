@@ -18,7 +18,7 @@ class BaseController extends AbstractController
     protected function checkUserAccess(?object $class = null): ?JsonResponse
     {
         if ($this->getUser()->getUserIdentifier() === null) {
-            $this->redirectToRoute('app_index');
+            $this->redirectToRoute('app_registration');
         }
         if ($class !== null && $this->getUser()->getId() !== $class->getUser()->getId()) {
             return $this->jsonResponse(["message" => "You don't have access to this resource."], Response::HTTP_FORBIDDEN);
