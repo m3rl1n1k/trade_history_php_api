@@ -141,9 +141,8 @@ class Transaction
     {
         $category = !is_string($data->category) ? $data->category : null;
         $create_at = $data->created_at . $this->getCurrentTime();
-        if ($data->flag === 'new')
-        {
-            match ($data->type){
+        if ($data->flag === 'new') {
+            match ($data->type) {
                 "income" => $transaction->setIncome(),
                 "expense" => $transaction->setExpense(),
                 default => $transaction->setTypeDefault(),
@@ -152,7 +151,7 @@ class Transaction
 
         $transaction->setAmount($data->amount);
         $transaction->setDescription($data->description);
-        $transaction->setCreatedAt(new DateTimeImmutable($create_at));
+        $data->flag === 'new' ? $transaction->setCreatedAt(new DateTimeImmutable($create_at)) : $transaction->setCreatedAt($transaction->getCreatedAt());
         $transaction->setCategory($category);
         $transaction->setWallet($data->wallet);
         return $transaction;
