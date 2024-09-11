@@ -43,7 +43,7 @@ class CategoryController extends BaseController
         if (null !== $permission = $this->checkUserAccess($subCategory)) {
             return $permission;
         }
-        return $this->jsonResponse(['main_category' => $subCategory], context: [
+        return $this->jsonResponse(['category' => $subCategory], context: [
             AbstractNormalizer::GROUPS => ['groups' => 'category:read']
         ]);
     }
